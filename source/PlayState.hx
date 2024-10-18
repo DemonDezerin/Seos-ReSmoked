@@ -192,6 +192,14 @@ class PlayState extends MusicBeatState
 				dialogue = CoolUtil.coolTextFile(Paths.txt('roses/rosesDialogue'));
 			case 'thorns':
 				dialogue = CoolUtil.coolTextFile(Paths.txt('thorns/thornsDialogue'));
+			case 'headache':
+				dialogue = CoolUtil.coolTextFile(Paths.txt('headache/headacheDialogue'));
+			case 'nerves':
+				dialogue = CoolUtil.coolTextFile(Paths.txt('nerves/nervesDialogue'));
+			case 'release':
+				dialogue = CoolUtil.coolTextFile(Paths.txt('release/releaseDialogue'));
+			case 'fading':
+				dialogue = CoolUtil.coolTextFile(Paths.txt('fading/fadingDialogue'));
 		}
 
 		#if discord_rpc
@@ -452,7 +460,7 @@ class PlayState extends MusicBeatState
 			'health', 0, 2);
 		healthBar.scrollFactor.set();
 		if (storyDifficulty == 3)
-			healthBar.createFilledBar(0xFF8E40A5, 0xFF31B0D1);
+			healthBar.createFilledBar(0xFF8E40A5, 0xFF66FF33);
 		else
 			healthBar.createFilledBar(0xFF00FF90, 0xFF31B0D1);
 		// healthBar
@@ -525,6 +533,40 @@ class PlayState extends MusicBeatState
 				case 'senpai' | 'roses' | 'thorns':
 					schoolIntro(doof);
 
+				case 'headache':
+					var introText:FlxSprite = new FlxSprite(0, 0).loadGraphic(Paths.image('garIntroText', 'week7'));
+					introText.setGraphicSize(Std.int(introText.width * 1.5));
+					introText.scrollFactor.set();
+					camHUD.visible = false;
+
+					add(introText);
+					FlxG.sound.playMusic(Paths.music('city_ambience'), 0);
+					FlxG.sound.music.fadeIn(1, 0, 0.8);
+
+					new FlxTimer().start(0.1, function(tmr:FlxTimer)
+					{
+						// FlxG.sound.play(Paths.sound('Lights_Turn_On'));
+					
+						new FlxTimer().start(3, function(tmr:FlxTimer)
+						{
+							FlxTween.tween(FlxG.camera, {zoom: defaultCamZoom}, 2.5, {
+								ease: FlxEase.quadInOut,
+								onComplete: function(twn:FlxTween)
+								{
+									FlxG.sound.music.fadeOut(2.2, 0);
+									remove(introText);
+									camHUD.visible = true;
+									garIntro(doof);
+								}
+							});
+						});
+					});
+				case 'nerves':
+					garIntro(doof);
+				case 'release':
+					garIntro(doof);
+				case 'fading':
+					garIntro(doof);
 				default:
 					startCountdown();
 			}
@@ -764,7 +806,7 @@ class PlayState extends MusicBeatState
 			if (swagCounter % 2 == 0)
 			{
 				if (!boyfriend.animation.curAnim.name.startsWith("sing"))
-					boyfriend.playAnim('idle');
+					boyfriend.dance;
 				if (!dad.animation.curAnim.name.startsWith("sing"))
 					dad.dance();
 			}
@@ -1989,7 +2031,7 @@ class PlayState extends MusicBeatState
 		{
 			if (boyfriend.animation.curAnim.name.startsWith('sing') && !boyfriend.animation.curAnim.name.endsWith('miss'))
 			{
-				boyfriend.playAnim('idle');
+				boyfriend.dance;
 			}
 		}
 
@@ -2205,7 +2247,7 @@ class PlayState extends MusicBeatState
 		if (curBeat % 2 == 0)
 		{
 			if (!boyfriend.animation.curAnim.name.startsWith("sing"))
-				boyfriend.playAnim('idle');
+				boyfriend.dance;
 			if (!dad.animation.curAnim.name.startsWith("sing"))
 				dad.dance();
 		}
