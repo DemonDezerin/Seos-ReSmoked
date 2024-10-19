@@ -116,6 +116,13 @@ class PlayState extends MusicBeatState
 	var talking:Bool = true;
 	var songScore:Int = 0;
 	var scoreTxt:FlxText;
+	var songMisses:Int = 0;
+
+	public var accuracy:Float = 0.00;
+	public var totalNotesHit:Float = 0;
+	public var accuracyDefault:Float = 0.00;
+	public var coolNoteFloat:Float = 0.0;
+	public var notesThatHitTheStrum:Int = 0;
 
 	var grpNoteSplashes:FlxTypedGroup<NoteSplash>;
 
@@ -466,11 +473,16 @@ class PlayState extends MusicBeatState
 		// healthBar
 		add(healthBar);
 
-		scoreTxt = new FlxText(healthBarBG.x + healthBarBG.width - 190, healthBarBG.y + 30, 0, "", 20);
-		scoreTxt.setFormat(Paths.font("vcr.ttf"), 16, FlxColor.WHITE, RIGHT, FlxTextBorderStyle.OUTLINE, FlxColor.BLACK);
-		scoreTxt.scrollFactor.set();
+		if (storyDifficulty == 3) {
+			scoreTxt = new FlxText(healthBarBG.x + healthBarBG.width - 190, healthBarBG.y + 30, 0, "", 20);
+			scoreTxt.setFormat(Paths.font("vcr.ttf"), 16, FlxColor.WHITE, RIGHT, FlxTextBorderStyle.OUTLINE, FlxColor.BLACK);
+			scoreTxt.scrollFactor.set();
+		} else {
+			scoreTxt = new FlxText(healthBarBG.x - 105, (FlxG.height * 0.9) + 36, 800, "", 22);
+			scoreTxt.setFormat(Paths.font("vcr.ttf"), 20, FlxColor.WHITE, CENTER, FlxTextBorderStyle.OUTLINE, FlxColor.BLACK);
+			scoreTxt.scrollFactor.set();
+		}
 		add(scoreTxt);
-
 		iconP1 = new HealthIcon(SONG.player1, true);
 		iconP1.y = healthBar.y - (iconP1.height / 2);
 		add(iconP1);
@@ -779,7 +791,6 @@ class PlayState extends MusicBeatState
 		});
 	}
 	
-
 	var startTimer:FlxTimer = new FlxTimer();
 	var perfectMode:Bool = false;
 
@@ -1187,6 +1198,13 @@ class PlayState extends MusicBeatState
 	var startedCountdown:Bool = false;
 	var canPause:Bool = true;
 
+	function truncateFloat( number : Float, precision : Int): Float {
+		var num = number;
+		num = num * Math.pow(10, precision);
+		num = Math.round( num ) / Math.pow(10, precision);
+		return num;
+	}
+
 	override public function update(elapsed:Float)
 	{
 		// makes the lerp non-dependant on the framerate
@@ -1230,7 +1248,12 @@ class PlayState extends MusicBeatState
 
 		super.update(elapsed);
 
-		scoreTxt.text = "Score:" + songScore;
+		if (storyDifficulty == 3)
+			scoreTxt.text = "Score: " + songScore;
+		else
+			scoreTxt.text = "Score: " + songScore + " | Misses: " + songMisses + " | Accuracy: " + truncateFloat(accuracy, 2) + "%";
+		if (accuracy == 0 && storyDifficulty != 3)
+			scoreTxt.text = "Score: " + songScore + " | Misses: " + songMisses + " | Accuracy: ?";
 
 		if (controls.PAUSE && startedCountdown && canPause)
 		{
@@ -1700,6 +1723,7 @@ class PlayState extends MusicBeatState
 		vocals.volume = 1;
 
 		var rating:FlxSprite = new FlxSprite();
+		var ratingMod:Float = 1;
 		var score:Int = 350;
 
 		var daRating:String = "sick";
@@ -1710,18 +1734,21 @@ class PlayState extends MusicBeatState
 		{
 			daRating = 'shit';
 			score = 50;
+			ratingMod = 0;
 			isSick = false; // shitty copypaste on this literally just because im lazy and tired lol!
 		}
 		else if (noteDiff > Conductor.safeZoneOffset * 0.75)
 		{
 			daRating = 'bad';
 			score = 100;
+			ratingMod = 0.4;
 			isSick = false;
 		}
 		else if (noteDiff > Conductor.safeZoneOffset * 0.2)
 		{
 			daRating = 'good';
 			score = 200;
+			ratingMod = 0.7;
 			isSick = false;
 		}
 
@@ -1732,6 +1759,8 @@ class PlayState extends MusicBeatState
 			// new NoteSplash(daNote.x, daNote.y, daNote.noteData);
 			grpNoteSplashes.add(noteSplash);
 		}
+
+		coolNoteFloat += ratingMod;
 
 		// Only add the score if you're not on practice mode
 		if (!practiceMode)
@@ -2057,6 +2086,8 @@ class PlayState extends MusicBeatState
 	{
 		// whole function used to be encased in if (!boyfriend.stunned)
 		health -= 0.04;
+		songMisses++;
+		notesThatHitTheStrum++;
 		killCombo();
 
 		if (!practiceMode)
@@ -2084,28 +2115,21 @@ class PlayState extends MusicBeatState
 			case 3:
 				boyfriend.playAnim('singRIGHTmiss', true);
 		}
+
+		updateAccuracy();
 	}
 
-	/* not used anymore lol
-
-	function badNoteHit()
+	function updateAccuracy(miss:Bool = false)
 	{
-		// just double pasting this shit cuz fuk u
-		// REDO THIS SYSTEM!
-		var leftP = controls.NOTE_LEFT_P;
-		var downP = controls.NOTE_DOWN_P;
-		var upP = controls.NOTE_UP_P;
-		var rightP = controls.NOTE_RIGHT_P;
-
-		if (leftP)
-			noteMiss(0);
-		if (downP)
-			noteMiss(1);
-		if (upP)
-			noteMiss(2);
-		if (rightP)
-			noteMiss(3);
-	} */
+		if (miss)
+			coolNoteFloat -= 1;
+	
+		//to make sure we don't divide by 0
+		if (notesThatHitTheStrum == 0)
+			accuracy = 100;
+		else
+			accuracy = FlxMath.roundDecimal(Math.max(0, coolNoteFloat / notesThatHitTheStrum * 100), 1); //idk how to round to the nearest hundreth so this is all we get...
+	}
 
 	function goodNoteHit(note:Note):Void
 	{
@@ -2113,9 +2137,12 @@ class PlayState extends MusicBeatState
 		{
 			if (!note.isSustainNote)
 			{
+				notesThatHitTheStrum++;
 				combo += 1;
 				popUpScore(note.strumTime, note);
 			}
+			else
+				totalNotesHit += 1;
 
 			if (note.noteData >= 0)
 				health += 0.023;
@@ -2150,6 +2177,7 @@ class PlayState extends MusicBeatState
 				note.kill();
 				notes.remove(note, true);
 				note.destroy();
+				updateAccuracy();
 			}
 		}
 	}
