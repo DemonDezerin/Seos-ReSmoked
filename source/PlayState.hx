@@ -83,6 +83,7 @@ class PlayState extends MusicBeatState
 
 	private var strumLineNotes:FlxTypedGroup<FlxSprite>;
 	private var playerStrums:FlxTypedGroup<FlxSprite>;
+	private var cpuStrums:FlxTypedGroup<FlxSprite>;
 
 	private var camZooming:Bool = false;
 	private var curSong:String = "";
@@ -429,6 +430,7 @@ class PlayState extends MusicBeatState
 		add(grpNoteSplashes);
 
 		playerStrums = new FlxTypedGroup<FlxSprite>();
+		cpuStrums = new FlxTypedGroup<FlxSprite>();
 
 		generateSong();
 
@@ -473,6 +475,14 @@ class PlayState extends MusicBeatState
 		// healthBar
 		add(healthBar);
 
+		iconP1 = new HealthIcon(SONG.player1, true);
+		iconP1.y = healthBar.y - (iconP1.height / 2);
+		add(iconP1);
+
+		iconP2 = new HealthIcon(SONG.player2, false);
+		iconP2.y = healthBar.y - (iconP2.height / 2);
+		add(iconP2);
+
 		if (storyDifficulty == 3) {
 			scoreTxt = new FlxText(healthBarBG.x + healthBarBG.width - 190, healthBarBG.y + 30, 0, "", 20);
 			scoreTxt.setFormat(Paths.font("vcr.ttf"), 16, FlxColor.WHITE, RIGHT, FlxTextBorderStyle.OUTLINE, FlxColor.BLACK);
@@ -483,13 +493,6 @@ class PlayState extends MusicBeatState
 			scoreTxt.scrollFactor.set();
 		}
 		add(scoreTxt);
-		iconP1 = new HealthIcon(SONG.player1, true);
-		iconP1.y = healthBar.y - (iconP1.height / 2);
-		add(iconP1);
-
-		iconP2 = new HealthIcon(SONG.player2, false);
-		iconP2.y = healthBar.y - (iconP2.height / 2);
-		add(iconP2);
 
 		grpNoteSplashes.cameras = [camHUD];
 		strumLineNotes.cameras = [camHUD];
@@ -817,7 +820,7 @@ class PlayState extends MusicBeatState
 			if (swagCounter % 2 == 0)
 			{
 				if (!boyfriend.animation.curAnim.name.startsWith("sing"))
-					boyfriend.dance;
+					boyfriend.playAnim('idle');
 				if (!dad.animation.curAnim.name.startsWith("sing"))
 					dad.dance();
 			}
@@ -1100,8 +1103,27 @@ class PlayState extends MusicBeatState
 
 			babyArrow.ID = i;
 
-			if (player == 1)
-				playerStrums.add(babyArrow);
+				if (player == 1)
+				{
+					if (PreferencesMenu.getPref("middlescroll"))
+						babyArrow.x -= 250;
+
+					playerStrums.add(babyArrow);
+				}
+				else
+				{
+					babyArrow.animation.finishCallback = function(anim)
+					{
+						babyArrow.animation.play('static');
+						babyArrow.centerOffsets();
+					}
+
+					if (PreferencesMenu.getPref("middlescroll"))
+						babyArrow.x -= 99999;
+	
+					babyArrow.centerOffsets();
+					cpuStrums.add(babyArrow);	
+				}
 
 			babyArrow.animation.play('static');
 			babyArrow.x += 50;
@@ -1501,6 +1523,15 @@ class PlayState extends MusicBeatState
 					}
 				}
 
+				if (daNote.mustPress){
+					daNote.x = playerStrums.members[daNote.noteData].x;
+				}else{
+					daNote.x = cpuStrums.members[daNote.noteData].x;
+				}
+
+				if (daNote.isSustainNote)
+					daNote.x += 30;
+
 				if (!daNote.mustPress && daNote.wasGoodHit)
 				{
 					if (SONG.song != 'Tutorial')
@@ -1534,6 +1565,14 @@ class PlayState extends MusicBeatState
 					if (SONG.needsVoices)
 						vocals.volume = 1;
 
+					cpuStrums.members[daNote.noteData].animation.play('confirm', true);
+                    if (!daNote.isSustainNote)
+                    {
+                        cpuStrums.members[daNote.noteData].centerOffsets();
+                        cpuStrums.members[daNote.noteData].offset.x -= 10;
+                        cpuStrums.members[daNote.noteData].offset.y -= 10;
+                    }
+
 					daNote.kill();
 					notes.remove(daNote, true);
 					daNote.destroy();
@@ -1565,9 +1604,7 @@ class PlayState extends MusicBeatState
 				{
 					if (daNote.tooLate)
 					{
-						health -= 0.0475;
-						vocals.volume = 0;
-						killCombo();
+						noteMiss(daNote.noteData);
 					}
 
 					daNote.active = false;
@@ -2060,7 +2097,7 @@ class PlayState extends MusicBeatState
 		{
 			if (boyfriend.animation.curAnim.name.startsWith('sing') && !boyfriend.animation.curAnim.name.endsWith('miss'))
 			{
-				boyfriend.dance;
+				boyfriend.playAnim('idle');
 			}
 		}
 
@@ -2275,7 +2312,7 @@ class PlayState extends MusicBeatState
 		if (curBeat % 2 == 0)
 		{
 			if (!boyfriend.animation.curAnim.name.startsWith("sing"))
-				boyfriend.dance;
+				boyfriend.playAnim('idle');
 			if (!dad.animation.curAnim.name.startsWith("sing"))
 				dad.dance();
 		}

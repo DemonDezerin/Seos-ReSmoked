@@ -34,7 +34,7 @@ class StoryMenuState extends MusicBeatState
 	];
 
 	var weekNames:Array<String> = [
-		"Smoke Em Out Struggle",
+		"Smoke 'Em Out Struggle",
 	];
 
 	var txtWeekTitle:FlxText;
