@@ -225,6 +225,18 @@ class FreeplayState extends MusicBeatState
 
 		diffText.text = "< " + CoolUtil.difficultyString() + " >";
 		positionHighscore();
+
+		switch (PlayState.storyDifficulty)
+        {
+            case 0:
+                diffText.color = 0xFF00FF00;
+            case 1:
+                diffText.color = 0xFFFFFF00;
+            case 2:
+                diffText.color = 0xFFFF0000;
+			case 3:
+				diffText.color = 0xFF00ff90;
+        }
 	}
 
 	function changeSelection(change:Int = 0)
