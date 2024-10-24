@@ -302,6 +302,12 @@ class Character extends FlxSprite
 						playAnim('danceRight');
 					else
 						playAnim('danceLeft');
+				case 'garcellodead':
+					if (animation.curAnim.name != "garTightBars")
+						playAnim('idle');
+				case 'garcelloghosty':
+					if (animation.curAnim.name != "garFarewell")
+						playAnim('idle');	
 				default:
 					playAnim('idle');
 			}
