@@ -483,10 +483,10 @@ class TitleState extends MusicBeatState
 					switch (i + 1)
 					{
 						case 1:
-							createCoolText(['The Funkin Crew']);
+							createCoolText(['The', 'Funkin Crew Inc']);
 						// credTextShit.visible = true;
 						case 3:
-							addMoreText('present');
+							addMoreText('presents');
 						// credTextShit.text += '\npresent...';
 						// credTextShit.addText();
 						case 4:
