@@ -402,12 +402,21 @@ class PlayState extends MusicBeatState
 		trace("curSong: " + curSong);
 		trace("storyDifficulty: " + storyDifficulty);
 		
+<<<<<<< Updated upstream
 		if (storyDifficulty == 3) {
 			healthBar.createFilledBar(0xFF8E40A5, 0xFF66FF33); // Highest priority
 		} else if (curSong.toLowerCase().trim() == "fading") {
 			healthBar.createFilledBar(0xFF469365, 0xFF31B0D1); // Second priority
 		} else {
 			healthBar.createFilledBar(0xFF00FF90, 0xFF31B0D1); // Default fallback
+=======
+		if (storyDifficulty == 3) { // This alone was a BITCH 2 Code
+			healthBar.createFilledBar(0xFF8E40A5, 0xFF66FF33);
+		} else if (curSong.toLowerCase().trim() == "fading") {
+			healthBar.createFilledBar(0xFF469365, 0xFF31B0D1);
+		} else {
+			healthBar.createFilledBar(0xFF00FF90, 0xFF31B0D1);
+>>>>>>> Stashed changes
 		}
 		
 				
@@ -547,6 +556,7 @@ class PlayState extends MusicBeatState
 
 		// String that contains the mode defined here so it isn't necessary to call changePresence for each mode
 		if (isStoryMode)
+<<<<<<< Updated upstream
 		{
 			detailsText = "Story Mode: Week " + storyWeek;
 		}
@@ -561,6 +571,49 @@ class PlayState extends MusicBeatState
 		// Updating Discord Rich Presence.
 		DiscordClient.changePresence(detailsText, SONG.song + " - " + storyDifficultyText, iconRPC);
 		#end
+=======
+		{
+			detailsText = "Story Mode: Week " + storyWeek;
+		}
+		else
+		{
+			detailsText = "Freeplay";
+		}
+
+		// String for when the game is paused
+		detailsPausedText = "Paused - " + detailsText;
+		
+		// Updating Discord Rich Presence.
+		DiscordClient.changePresence(detailsText, SONG.song + " - " + storyDifficultyText, iconRPC);
+		#end
+	}
+
+	var video:MP4Handler;
+
+	function playCutscene(name:String)
+	{
+		inCutscene = true;
+	
+		video = new MP4Handler();
+		video.finishCallback = function()
+		{
+			startCountdown();
+		}
+		video.playVideo(Paths.video(name));
+	}
+	
+	function playEndCutscene(name:String)
+	{
+		inCutscene = true;
+	
+		video = new MP4Handler();
+		video.finishCallback = function()
+		{
+			SONG = Song.loadFromJson(storyPlaylist[0].toLowerCase());
+			LoadingState.loadAndSwitchState(new PlayState());
+		}
+		video.playVideo(Paths.video(name));
+>>>>>>> Stashed changes
 	}
 
 	function garIntro(?dialogueBox:DialogueBox):Void
