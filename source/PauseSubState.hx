@@ -17,12 +17,8 @@ class PauseSubState extends MusicBeatSubstate
 {
 	var grpMenuShit:FlxTypedGroup<Alphabet>;
 
-	var pauseOG:Array<String> = [
-		'Resume',
-		'Restart Song',
-		'Change Difficulty',
-		'Exit to menu'
-	];
+	var pauseOG:Array<String> = ['Resume', 'Restart Song', 'Change Difficulty', 'Exit to menu'];
+	var pauseCS:Array<String> = ['Resume', 'Skip Cutscene', 'Restart Cutscene', 'Exit to menu'];
 	var difficultyChoices:Array<String> = ['EASY', 'NORMAL', 'HARD', 'BACK'];
 
 	var menuItems:Array<String> = [];
@@ -50,7 +46,7 @@ class PauseSubState extends MusicBeatSubstate
 		add(bg);
 
 		var levelInfo:FlxText = new FlxText(20, 15, 0, "", 32);
-		levelInfo.text += PlayState.SONG.song + " - atsuover";
+		levelInfo.text += PlayState.SONG.song + " - Atsuover";
 		levelInfo.scrollFactor.set();
 		levelInfo.setFormat(Paths.font("vcr.ttf"), 32);
 		levelInfo.updateHitbox();

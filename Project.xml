@@ -95,6 +95,13 @@
 	<assets path="assets/week6"    library="week6"    exclude="*.fla|*.mp3" unless="web"/>
 	<assets path="assets/week7"    library="week7"    exclude="*.fla|*.ogg" if="web"/>
 	<assets path="assets/week7"    library="week7"    exclude="*.fla|*.mp3" unless="web"/>
+	<assets path="assets/preload/videos" rename="assets/videos" include="*mp4" embed='false' />
+
+	<assets path="assets/videos" exclude="*.mp3" if="web"/>
+	<assets path="assets/videos" exclude="*.ogg" unless="web"/>
+
+	<assets path="plugins/" rename='' if="windows"/>
+	<assets path="dlls/" rename='' if="windows"/>
 	
 	<!-- <assets path='example_mods' rename='mods' embed='false'/> -->
 
@@ -124,8 +131,6 @@
 	<haxelib name="flixel-ui" />
 	<!--haxelib name="newgrounds" unless="switch"/> -->
 	<haxelib name="faxe" if='switch'/>
-	<haxelib name="polymod"/>
-	<haxelib name="newgrounds"/>
 	<haxelib name="hxcpp-debug-server" if="desktop debug"/>
 	
 	<!-- <haxelib name="flixel-animate" /> -->
@@ -133,7 +138,7 @@
 	<!-- https://github.com/ninjamuffin99/Flixel-Animate-Atlas-Player -->
 
 
-	<!--<haxelib name="discord_rpc" if="cpp"/> --> <!-- foesn't work with neko -->
+	<haxelib name="discord_rpc" if="cpp"/>
 	<!-- <haxelib name="hxcpp-debug-server" if="desktop"/> -->
 
 	<!-- <haxelib name="markdown" /> -->
